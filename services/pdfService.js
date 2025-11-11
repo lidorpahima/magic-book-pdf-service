@@ -350,18 +350,40 @@ export async function generatePdfBuffer({ story, childName, childAge, selectedGe
   const finalOptions = { ...defaultOptions, ...options };
   let browser;
   try {
+    const forcedExec = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium';
     try {
+      console.log(`[PDFService] Trying chromium at ${forcedExec}`);
       browser = await puppeteer.launch({
-        executablePath: await chromium.executablePath(),
-        headless: chromium.headless,
-        args: chromium.args
-      });
-    } catch {
-      const puppeteerRegular = await import('puppeteer');
-      browser = await puppeteerRegular.default.launch({
+        executablePath: forcedExec,
         headless: 'new',
-        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-gpu',
+          '--no-first-run',
+          '--no-zygote'
+        ]
       });
+      console.log(`[PDFService] Puppeteer launched with forced path`);
+    } catch (e1) {
+      console.warn(`[PDFService] Forced path failed (${e1?.message}). Trying @sparticuz/chromium`);
+      try {
+        browser = await puppeteer.launch({
+          executablePath: await chromium.executablePath(),
+          headless: chromium.headless,
+          args: chromium.args
+        });
+        console.log(`[PDFService] Puppeteer launched with @sparticuz/chromium`);
+      } catch (e2) {
+        console.warn(`[PDFService] Sparticuz failed (${e2?.message}). Trying regular puppeteer`);
+        const puppeteerRegular = await import('puppeteer');
+        browser = await puppeteerRegular.default.launch({
+          headless: 'new',
+          args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
+        });
+        console.log(`[PDFService] Puppeteer launched with bundled Chrome`);
+      }
     }
     const page = await browser.newPage();
     page.setDefaultNavigationTimeout(120000);

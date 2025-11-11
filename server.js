@@ -31,24 +31,33 @@ app.post('/api/pdf/generate', async (req, res) => {
   try {
     const reqId = req.headers['x-request-id'] || 'no-id';
     console.log(`[PDF MS] (${reqId}) start /api/pdf/generate`);
+    const REQUEST_TIMEOUT_MS = Number(process.env.REQUEST_TIMEOUT_MS || 55000);
     const { story, selectedStory, childName, childAge, selectedGender, options = {} } = req.body || {};
     const effectiveStory = story || selectedStory;
     if (!effectiveStory || !childName || !selectedGender) {
       return res.status(400).json({ error: 'Missing required fields: story, childName, selectedGender' });
     }
-    const pdfBuffer = await generatePdfBuffer({
+    const work = generatePdfBuffer({
       story: effectiveStory,
       childName,
       childAge,
       selectedGender,
       options
     });
+    const timeout = new Promise((_, rej) =>
+      setTimeout(() => rej(new Error('request_timeout')), REQUEST_TIMEOUT_MS)
+    );
+    const pdfBuffer = await Promise.race([work, timeout]);
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
     res.status(200).send(pdfBuffer);
   } catch (error) {
+    if (error?.message === 'request_timeout') {
+      console.error('[PDF SERVICE] Timeout: generate exceeded time budget');
+      return res.status(504).json({ error: 'PDF generation timeout' });
+    }
     console.error('[PDF SERVICE] Error generating PDF:', error);
     res.status(500).json({ error: 'Failed to generate PDF', details: error?.message });
   }
@@ -58,23 +67,32 @@ app.post('/api/pdf/generate-text-only', async (req, res) => {
   try {
     const reqId = req.headers['x-request-id'] || 'no-id';
     console.log(`[PDF MS] (${reqId}) start /api/pdf/generate-text-only`);
+    const REQUEST_TIMEOUT_MS = Number(process.env.REQUEST_TIMEOUT_MS || 55000);
     const { story, childName, childAge, selectedGender, options = {} } = req.body || {};
     if (!story || !childName || !selectedGender) {
       return res.status(400).json({ error: 'Missing required fields: story, childName, selectedGender' });
     }
-    const pdfBuffer = await generateTextOnlyPdfBuffer({
+    const work = generateTextOnlyPdfBuffer({
       story,
       childName,
       childAge,
       selectedGender,
       options
     });
+    const timeout = new Promise((_, rej) =>
+      setTimeout(() => rej(new Error('request_timeout')), REQUEST_TIMEOUT_MS)
+    );
+    const pdfBuffer = await Promise.race([work, timeout]);
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
     res.status(200).send(pdfBuffer);
   } catch (error) {
+    if (error?.message === 'request_timeout') {
+      console.error('[PDF SERVICE] Timeout: generate-text-only exceeded time budget');
+      return res.status(504).json({ error: 'PDF generation timeout' });
+    }
     console.error('[PDF SERVICE] Error generating text-only PDF:', error);
     res.status(500).json({ error: 'Failed to generate text-only PDF', details: error?.message });
   }
@@ -84,22 +102,31 @@ app.post('/api/pdf/generate-cover', async (req, res) => {
   try {
     const reqId = req.headers['x-request-id'] || 'no-id';
     console.log(`[PDF MS] (${reqId}) start /api/pdf/generate-cover`);
+    const REQUEST_TIMEOUT_MS = Number(process.env.REQUEST_TIMEOUT_MS || 55000);
     const { story, childName, childAge, options = {} } = req.body || {};
     if (!story || !childName) {
       return res.status(400).json({ error: 'Missing required fields: story, childName' });
     }
-    const pdfBuffer = await generateCoverPdfBuffer({
+    const work = generateCoverPdfBuffer({
       story,
       childName,
       childAge,
       options
     });
+    const timeout = new Promise((_, rej) =>
+      setTimeout(() => rej(new Error('request_timeout')), REQUEST_TIMEOUT_MS)
+    );
+    const pdfBuffer = await Promise.race([work, timeout]);
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
     res.status(200).send(pdfBuffer);
   } catch (error) {
+    if (error?.message === 'request_timeout') {
+      console.error('[PDF SERVICE] Timeout: generate-cover exceeded time budget');
+      return res.status(504).json({ error: 'PDF generation timeout' });
+    }
     console.error('[PDF SERVICE] Error generating cover PDF:', error);
     res.status(500).json({ error: 'Failed to generate cover PDF', details: error?.message });
   }
