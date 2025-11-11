@@ -6,7 +6,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "sync-assets": "node ../scripts/syncPdfAssets.js"
   },
   "dependencies": {
     "@sparticuz/chromium": "^112.0.0",

@@ -162,6 +162,7 @@ function loadTemplatesOnce() {
     const templatesDir = path.resolve(process.cwd(), 'pdf-templates');
     const pairs = [
       ['softcover', 'book-template-softcover.html'],
+      // Prefer dedicated digital template; fallback to softcover if missing
       ['digital', 'book-template-digital.html'],
       ['hardcover', 'book-template-pages.html'],
       ['cover', 'cover-template.html'],
@@ -172,6 +173,13 @@ function loadTemplatesOnce() {
       const p = path.join(templatesDir, file);
       if (fs.existsSync(p)) {
         fresh[key] = fs.readFileSync(p, 'utf8');
+      } else if (key === 'digital') {
+        // Fallback: use softcover as digital template if dedicated file is absent
+        const soft = path.join(templatesDir, 'book-template-softcover.html');
+        if (fs.existsSync(soft)) {
+          console.warn('⚠️ Digital template not found, falling back to softcover template');
+          fresh[key] = fs.readFileSync(soft, 'utf8');
+        }
       }
     }
     cachedTemplates = fresh;

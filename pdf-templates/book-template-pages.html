@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{BOOK_TITLE}} - {{CHILD_NAME}} - Hardcover</title>
+  <style>
+    /*__FONT_CSS__*/
+
+    :root {
+      --bleed: 5mm; /* 5mm bleed all around */
+      --dedication-bg: #ffffff;
+      --dedication-text: #111827;
+      --dedication-accent: #a78bfa;
+    }
+
+    /* Full page, no margin so we control bleed manually */
+    @page { 
+      size: 22.5cm 22.5cm;
+      margin: 0;
+    }
+
+    html, body {
+      padding: 0;
+      margin: 0;
+      background: #fafafa; /* just for on-screen preview */
+      color: #111827;
+    }
+
+    /* Every inner page is a single page (no spreads), digital-like behavior (100vh/100vw) */
+    section.page {
+      page-break-inside: avoid;
+      page-break-after: always;
+      position: relative;
+      box-sizing: border-box;
+      width: 100vw;
+      height: 100vh;
+      padding: var(--bleed); /* bleed region */
+      background: white; /* default fallback */
+      overflow: hidden;
+    }
+    /* Allow using the page itself as the image background */
+    section.page.bg-image {
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+    }
+    /* Inject explicit crop-mark elements per page like cover */
+    section.page > .crop-mark.top-left,
+    section.page > .crop-mark.top-right,
+    section.page > .crop-mark.bottom-left,
+    section.page > .crop-mark.bottom-right { display: block; }
+
+    /* Removed visible safe-area box to avoid boxes in print */
+
+    /* Crop marks like in cover-template (cross marks at 4 corners) */
+    :root {
+      --crop-l: 15mm;       /* crop mark length */
+      --crop-t: 0.25mm;     /* crop mark thickness */
+      --crop-c: rgb(0, 0, 0); /* match cover crop color */
+    }
+
+    /* Crop marks identical to cover-template, per inner page */
+    .page .crop-mark { position: absolute; }
+    .page .crop-mark::before, 
+    .page .crop-mark::after {
+      content: '';
+      position: absolute;
+      background-color: var(--crop-c);
+    }
+    .page .crop-mark::before { width: var(--crop-t); height: var(--crop-l); }
+    .page .crop-mark::after { height: var(--crop-t); width: var(--crop-l); }
+    .page .top-left { top: var(--bleed); left: var(--bleed); }
+    .page .top-right { top: var(--bleed); right: var(--bleed); }
+    .page .bottom-left { bottom: var(--bleed); left: var(--bleed); }
+    .page .bottom-right { bottom: var(--bleed); right: var(--bleed); }
+    .page .top-left::before, .page .top-right::before { top: calc(-1 * var(--crop-l)); }
+    .page .bottom-left::before, .page .bottom-right::before { top: 0; } 
+    .page .top-left::after, .page .bottom-left::after { left: calc(-1 * var(--crop-l)); }
+    .page .top-right::after, .page .bottom-right::after { left: 0; }
+
+    /* Top-left and top-right via section.page::before */
+    section.page::before {
+      content: '';
+      position: absolute;
+      top: var(--bleed);
+      left: var(--bleed);
+      right: var(--bleed);
+      height: 0; /* size comes from background-size */
+      pointer-events: none;
+      background-image:
+        /* top-left vertical */
+        linear-gradient(var(--crop-c), var(--crop-c)),
+        /* top-left horizontal */
+        linear-gradient(var(--crop-c), var(--crop-c)),
+        /* top-right vertical */
+        linear-gradient(var(--crop-c), var(--crop-c)),
+        /* top-right horizontal */
+        linear-gradient(var(--crop-c), var(--crop-c));
+      background-repeat: no-repeat;
+      background-size:
+        var(--crop-t) var(--crop-l),
+        var(--crop-l) var(--crop-t),
+        var(--crop-t) var(--crop-l),
+        var(--crop-l) var(--crop-t);
+      background-position:
+        /* top-left vertical */ left calc(-1 * var(--crop-l)) top 0,
+        /* top-left horizontal */ left 0 top calc(-1 * var(--crop-l)),
+        /* top-right vertical */ right calc(-1 * var(--crop-l)) top 0,
+        /* top-right horizontal */ right 0 top calc(-1 * var(--crop-l));
+    }
+
+    /* Bottom-left and bottom-right via .sheet::before */
+    .sheet::before {
+      content: '';
+      position: absolute;
+      left: calc(-1 * var(--bleed));
+      right: calc(-1 * var(--bleed));
+      bottom: calc(-1 * var(--bleed));
+      height: 0; /* size comes from background-size */
+      pointer-events: none;
+      background-image:
+        /* bottom-left vertical */
+        linear-gradient(var(--crop-c), var(--crop-c)),
+        /* bottom-left horizontal */
+        linear-gradient(var(--crop-c), var(--crop-c)),
+        /* bottom-right vertical */
+        linear-gradient(var(--crop-c), var(--crop-c)),
+        /* bottom-right horizontal */
+        linear-gradient(var(--crop-c), var(--crop-c));
+      background-repeat: no-repeat;
+      background-size:
+        var(--crop-t) var(--crop-l),
+        var(--crop-l) var(--crop-t),
+        var(--crop-t) var(--crop-l),
+        var(--crop-l) var(--crop-t);
+      background-position:
+        /* bottom-left vertical */ left 0 bottom 0,
+        /* bottom-left horizontal */ left 0 bottom 0,
+        /* bottom-right vertical */ right 0 bottom 0,
+        /* bottom-right horizontal */ right 0 bottom 0;
+      /* offsets to extend outside trim */
+      transform: translateY(calc(var(--crop-l))) translateX(0);
+    }
+
+    /* Content sheet inside the bleed area */
+    .sheet {
+      position: relative;
+      height: calc(100vh - (var(--bleed) * 2));
+      width: calc(100vw - (var(--bleed) * 2));
+      margin: 0;
+      box-sizing: border-box;
+      border-radius: 0;
+      border: none; /* hide sheet border */
+      background: transparent; /* transparent background */
+      padding: 0; /* full-bleed content */
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .page-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .imgbox {
+      border-radius: 0;
+      overflow: hidden;
+      border: none; /* no frame */
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%; /* fill entire sheet */
+      min-height: 0;
+    }
+    /* When using background image on the page, we don't need the <img>. Keep class for fallback */
+    .img { display: none; }
+    .img-fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #94a3b8;
+      background: #f3f4f6;
+      border: 1px dashed #cbd5e1;
+      border-radius: 10px;
+      font-size: 12pt;
+    }
+
+    .textbox {
+      padding: 16mm; /* more space around text */
+      display: flex;
+      align-items: center; /* vertical center */
+      justify-content: center; /* horizontal center */
+      height: 100%; /* fill full page area for perfect centering */
+      box-sizing: border-box;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+    }
+    .story {
+      margin: 0 auto; /* center block */
+      max-width: 80%; /* readable line length */
+      font-family: 'SpacerRegular', 'FbSpacer', Arial, Helvetica, sans-serif;
+      font-weight: 700;
+      font-size: 22pt; /* larger font */
+      line-height: 1.7; /* more breathing room */
+      white-space: pre-wrap;
+      text-align: center;
+    }
+
+    .ornament {
+      position: absolute;
+      bottom: 6mm;
+      left: 10mm;
+      font-size: 12pt;
+      color: #a78bfa;
+      opacity: 0.5;
+    }
+
+    /* --- DEDICATION PAGE (first page before story content) --- */
+    section.dedication {
+      page-break-after: always;
+      position: relative;
+      box-sizing: border-box;
+      width: 100vw;
+      height: 100vh;
+      padding: var(--bleed);
+      background: var(--dedication-bg);
+      overflow: hidden;
+      display: flex;
+    }
+    .dedication-sheet {
+      position: relative;
+      height: calc(100vh - (var(--bleed) * 2));
+      width: calc(100vw - (var(--bleed) * 2));
+      margin: 0;
+      box-sizing: border-box;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18mm;
+    }
+    .dedication-card {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      background: transparent;
+      box-shadow: none;
+    }
+    .dedication-photo {
+      width: 65mm;
+      height: 65mm;
+      border-radius: 50%;
+      overflow: hidden;
+      margin-bottom: 8mm;
+      box-shadow: none;
+      border: none;
+      background: transparent;
+    }
+    .dedication-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .dedication-card::before,
+    .dedication-card::after { display: none; }
+    .dedication-title {
+      font-family: 'FbSpacerBlack', 'FbSpacer', Arial, Helvetica, sans-serif;
+      font-size: 28pt;
+      color: var(--dedication-text);
+      margin-bottom: 4mm;
+    }
+    .dedication-subtitle {
+      font-size: 16pt;
+      color: #4c1d95;
+      margin-bottom: 10mm;
+      font-family: 'SpacerRegular', Arial, Helvetica, sans-serif;
+    }
+    .dedication-text {
+      font-size: 18pt;
+      line-height: 1.9;
+      color: var(--dedication-text);
+      white-space: pre-wrap;
+      max-width: 80%;
+      margin: 0 auto;
+      font-family: 'SpacerRegular', Arial, Helvetica, sans-serif;
+    }
+    .dedication-accent {
+      position: absolute;
+      bottom: 10mm;
+      right: 12mm;
+      font-size: 12pt;
+      color: var(--dedication-accent);
+      opacity: 0.6;
+    }
+
+    /* --- COVER PAGE (first page) similar to digital behavior --- */
+    section.cover {
+      page-break-after: always;
+      position: relative;
+      box-sizing: border-box;
+      width: 100vw;
+      height: 100vh;
+      padding: var(--bleed);
+      background: white;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cover-sheet {
+      position: relative;
+      height: calc(100vh - (var(--bleed) * 2));
+      width: calc(100vw - (var(--bleed) * 2));
+      margin: 0;
+      box-sizing: border-box;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cover-image {
+      flex: 1 1 auto;
+      width: 100%;
+      background-image: url('{{COVER_IMAGE_URL}}');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+    }
+
+    .cover-text {
+      flex: 0 0 auto;
+      width: 100%;
+      min-height: 20%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2mm;
+      padding: 6mm 8mm;
+      text-align: center;
+      box-sizing: border-box;
+      background: transparent;
+      border-top: 2px solid rgba(0,0,0,0.15);
+    }
+
+    .title { font-size: 24pt; line-height: 1.25; font-weight: 700; color: #4c1d95; margin: 0; }
+    .subtitle { font-size: 16pt; line-height: 1.45; color: #374151; margin: 0; }
+    .child { font-size: 14pt; color: #111827; margin-top: 2mm; font-weight: 700; }
+
+    /* --- BACK COVER (last page) --- */
+    section.back-cover {
+      page-break-before: always;
+      position: relative;
+      box-sizing: border-box;
+      width: 100vw;
+      height: 100vh;
+      padding: var(--bleed);
+      background: white;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .back-cover-sheet {
+      position: relative;
+      height: calc(100vh - (var(--bleed) * 2));
+      width: calc(100vw - (var(--bleed) * 2));
+      margin: 0;
+      box-sizing: border-box;
+      background: #ffffff;
+      padding: 10mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8mm;
+    }
+
+    .back-blurb { font-size: 11pt; line-height: 1.6; color: #111827; }
+    .back-barcode { align-self: flex-start; width: 40mm; height: 40mm; background-color: white; border: 1px solid #ccc; padding: 2mm; box-sizing: border-box; }
+    .back-barcode img { width: 100%; height: 100%; object-fit: contain; }
+  </style>
+</head>
+<body>
+  <!--
+    Hardcover template: the page HTML for inner content is injected into {{PAGES}}.
+    The server alternates image-only and text-only pages per content page.
+    All visual changes can be done here in CSS/HTML without touching server code.
+  -->
+
+
+  <!-- Inner pages -->
+  <div id="pages-container">
+    <!-- Four crop marks per page (matched via CSS) -->
+    {{BLANK_PAGES}}
+    {{DEDICATION_PAGE}}
+    {{PAGES}}
+  </div>
+
+
+</body>
+</html>
+

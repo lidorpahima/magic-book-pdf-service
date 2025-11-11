@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{BOOK_TITLE}} - {{CHILD_NAME}} - Hardcover</title>
+  <style>
+        :root {
+        --book-height: 262mm;
+        --book-width: 210mm;
+        --spine-width: 15mm;
+        --cover-bleed-size: 20mm; 
+        --cover-background-color: #2c2a4a;
+    }
+    /*__FONT_CSS__*/
+    @font-face {
+      font-family: 'FbSpacer';
+      src: url('./FbSpacer-Regular_0.otf') format('opentype');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'FbSpacer';
+      src: url('./FbSpacer-Bold_0.otf') format('opentype');
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'FbSpacerBlack';
+      src: url('./FbSpacer-Black_0.otf') format('opentype');
+      font-weight: 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @page {
+      size: 210mm 262mm;
+      margin: 0;
+    }
+
+    html, body {
+      padding: 0;
+      margin: 0;
+      background: #fafaf9;
+      color: #111827;
+      font-family: 'FbSpacer', 'SpacerRegular', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans', Arial, sans-serif;
+    }
+
+    .container {
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Cover page with 80/20 split layout */
+    .cover {
+      page-break-after: always;
+      height: 100vh;
+      position: relative;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Crop marks for cover - disabled */
+    .cover::before,
+    .cover::after {
+      content: none;
+      display: none;
+    }
+
+    /* Image section - exactly 80% of the height, starting from top */
+    .cover-image {
+      height: 80%;
+      width: 100%;
+      background-image: url('{{COVER_IMAGE_URL}}');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      position: relative;
+      /* High-quality background image rendering for print */
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: optimizeQuality;
+    }
+
+    /* Text section - exactly 20% of the height, at the bottom */
+    .cover-text {
+      /* Your existing styles */
+      height: 20%;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2mm;
+      padding: 4mm 8mm;
+      text-align: center;
+      box-sizing: border-box;
+      background: transparent;
+
+      border-top: 5px solid rgba(0, 0, 0, 0.983);
+      
+      box-shadow: 0 -3mm 6mm rgba(0, 0, 0, 0.63);
+      
+      -webkit-mask-image: linear-gradient(to top, black 80%, transparent 100%);
+      mask-image: linear-gradient(to top, black 80%, transparent 100%);
+    }
+
+    .title {
+      font-family: 'SpacerRegular', 'FbSpacer', Arial, Helvetica, sans-serif;
+      font-size: 24pt;
+      line-height: 1.25;
+      font-weight: 700;
+      color: #4c1d95;
+      margin: 0;
+      text-align: center;
+    }
+
+    .subtitle {
+      font-family: 'SpacerRegular', 'FbSpacer', Arial, Helvetica, sans-serif;
+      font-size: 24pt;
+      line-height: 1.45;
+      color: #374151;
+      margin: 0;
+      text-align: center;
+    }
+    .description {
+      font-family: 'SpacerRegular', 'FbSpacer', Arial, Helvetica, sans-serif;
+      font-size: 34pt;
+      line-height: 1.45;
+      color: #374151;
+      margin: 0;
+      text-align: center;
+    }
+
+    .child {
+      font-family: 'SpacerRegular', 'FbSpacer', Arial, Helvetica, sans-serif;
+      font-size: 14pt;
+      color: #111827;
+      margin-top: 2mm;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 0.2px;
+    }
+
+    /* Inner pages full-bleed (no crop marks) */
+    section.page {
+      page-break-inside: avoid;
+      page-break-after: always;
+      padding: 0; /* remove outer padding so background fills */
+      position: relative;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Disable inner page crop marks */
+    section.page::before,
+    section.page::after {
+      content: none;
+      display: none;
+    }
+
+    .sheet {
+      display: flex;
+      flex-direction: column;
+      gap: 8mm;
+      align-items: stretch;
+      justify-content: center;
+      background: url('https://res.cloudinary.com/dqervww7v/image/upload/v1757672055/Paper-Texture-4_agt5rt.jpg') center/cover no-repeat;
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      padding: 8mm; /* inner margin on the paper */
+      position: relative;
+      height: 100vh; /* fill the whole page */
+      width: 100vw;
+      max-width: none;
+      min-height: auto;
+      margin: 0 auto;
+      overflow: hidden; /* prevent content from spilling to next page */
+      box-sizing: border-box;
+    }
+
+    .page-content {
+      display: flex;
+      flex-direction: column;
+      gap: 8mm;
+      flex: 1;
+      overflow: hidden; /* prevent content overflow */
+      max-height: calc(100vh - 16mm); /* account for padding */
+    }
+
+    .imgbox {
+      border-radius: 20mm;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 140mm;
+      max-height: 220mm; /* limit maximum height */
+      order: 2;
+      flex-shrink: 0; /* prevent shrinking */
+    }
+
+    .img {
+      width: 90%;
+      height: 95%;
+      object-fit: cover;
+      display: block;
+      border-radius: 20mm;
+      /* High-quality image rendering for print */
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: optimizeQuality;
+    }
+
+    .textbox {
+      border-radius: 4mm;
+      padding: 10mm;
+      display: flex;
+      align-items: center;
+      order: 1;
+      max-height: 150mm; /* further increased maximum height */
+      overflow: hidden; /* prevent text overflow */
+    }
+ 
+    .story {
+      margin: 0;
+      font-family: 'FbSpacer', 'SpacerRegular', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans', Arial, sans-serif;
+      font-size: 18pt;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      text-align: right;
+      overflow: hidden; /* do not spill to next page */
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 30; /* further increased line clamp */
+      line-clamp: 30; /* standard property for compatibility */
+    }
+
+    .ornament {
+      position: absolute;
+      bottom: 4mm;
+      right: 8mm;
+      font-size: 12pt;
+      color: #a78bfa;
+      opacity: 0.6;
+    }
+
+    /* --- Dedication page (digital) --- */
+    section.dedication {
+      page-break-after: always;
+      position: relative;
+      box-sizing: border-box;
+      width: 100vw;
+      height: 100vh;
+      padding: 0;
+      background: transparent;
+      overflow: hidden;
+      display: flex;
+    }
+    .dedication-sheet {
+      position: relative;
+      height: 100vh;
+      width: 100vw;
+      margin: 0;
+      box-sizing: border-box;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18mm;
+    }
+    .dedication-card {
+      width: 100%;
+      max-width: 80%;
+      text-align: center;
+      background: rgba(255,255,255,0.9);
+      border-radius: 6mm;
+      padding: 12mm;
+      box-shadow: 0 4mm 12mm rgba(0,0,0,0.08);
+    }
+    .dedication-title {
+      font-family: 'FbSpacer', 'SpacerRegular', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans', Arial, sans-serif;
+      font-size: 26pt;
+      color: #4c1d95;
+      margin-bottom: 4mm;
+    }
+    .dedication-subtitle { display:none; }
+
+    .dedication-text {
+      font-family: 'FbSpacer', 'SpacerRegular', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans', Arial, sans-serif;
+      font-size: 16pt;
+      line-height: 1.8;
+      color: #111827;
+      white-space: pre-wrap;
+    }
+    .dedication-accent {
+      margin-top: 8mm;
+      font-size: 11pt;
+      color: #a78bfa;
+      opacity: 0.7;
+    }
+
+        .back-cover { 
+            position: relative;
+            width: 100%; 
+            height: 100vh;
+            padding: 15mm; 
+            box-sizing: border-box; 
+            display: flex; 
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+        /* Blurred background overlay for back cover (similar to front cover) */
+        .back-cover::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('{{COVER_IMAGE_URL}}');
+            background-size: 130% auto;
+            background-position: center top;
+            filter: blur(80px) saturate(1.1);
+            transform: scale(1.1);
+            opacity: 0.85;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .back-cover .blurb { 
+            font-size: 11pt; 
+            line-height: 1.6; 
+            color: #111827; 
+            position: relative;
+            z-index: 2;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 8mm;
+            border-radius: 4mm;
+            backdrop-filter: blur(10px);
+        }
+        .back-cover .barcode { 
+            align-self: flex-start; 
+            width: 40mm; 
+            height: 40mm; 
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 2mm; 
+            box-sizing: border-box;
+            position: relative;
+            z-index: 2;
+            backdrop-filter: blur(10px);
+            border-radius: 2mm;
+        }
+        .back-cover .barcode img { width: 100%; height: 100%; object-fit: contain; }
+
+        .cover-spread {
+            display: flex;
+            width: calc((var(--book-width) * 2) + var(--spine-width));
+            height: var(--book-height);
+            color: white;
+            background: url('https://res.cloudinary.com/dqervww7v/image/upload/v1757672055/Paper-Texture-4_agt5rt.jpg') center/cover no-repeat;
+            background-size: cover;
+            background-position: center;
+            position: absolute;
+            top: var(--cover-bleed-size);
+            left: var(--cover-bleed-size);
+        }
+
+ 
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- FRONT COVER -->
+    <section class="cover">
+      <!-- Image section (80%) -->
+      <div class="cover-image"></div>
+      
+      <!-- Text section (20% with 10mm margin from bottom) -->
+      <div class="cover-text">
+        <h1 class="title">{{BOOK_TITLE}}</h1>
+        <p class="child">לכבוד: {{CHILD_NAME}}</p>
+      </div>
+    </section>
+
+    <!-- DEDICATION (first inner page after cover) -->
+    {{DEDICATION_PAGE}}
+
+    <!-- INNER PAGES -->
+    {{PAGES}}
+  
+
+    <!-- BACK COVER -->
+    <section class="back-cover">
+      <div class="blurb">
+          <p><strong>{{BOOK_TITLE}}</strong></p>
+          <p class="subtitle">{{BOOK_SUBTITLE}}</p>
+      </div>
+      <div class="barcode">
+          <img src="https://res.cloudinary.com/dqervww7v/image/upload/v1759225973/qrchimpX1024_o1xgqy.png" alt="קוד QR של הספר">
+      </div>
+    </section>
+  </div>
+</body>
+</html>
