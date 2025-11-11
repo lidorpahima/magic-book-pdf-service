@@ -10,6 +10,52 @@ let cachedFontBase64 = null;
 let cachedCoverFonts = null;
 let cachedTemplates = {};
 
+const BASE_CHROMIUM_ARGS = [
+  '--no-sandbox',
+  '--disable-setuid-sandbox',
+  '--disable-dev-shm-usage',
+  '--disable-gpu',
+  '--no-first-run',
+  '--no-zygote',
+  '--disable-accelerated-2d-canvas'
+];
+
+async function launchBrowserWithFallback(extraArgs = [], label = 'default') {
+  const forcedExec = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium';
+  const combinedArgs = Array.from(new Set([...BASE_CHROMIUM_ARGS, ...extraArgs]));
+  try {
+    console.log(`[PDFService] Trying chromium at ${forcedExec} (${label})`);
+    const browser = await puppeteer.launch({
+      executablePath: forcedExec,
+      headless: 'new',
+      args: combinedArgs
+    });
+    console.log(`[PDFService] Puppeteer launched with forced path (${label})`);
+    return browser;
+  } catch (e1) {
+    console.warn(`[PDFService] Forced path failed for ${label} (${e1?.message}). Trying @sparticuz/chromium`);
+    try {
+      const chromiumArgs = Array.from(new Set([...(chromium.args || []), ...combinedArgs]));
+      const browser = await puppeteer.launch({
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+        args: chromiumArgs
+      });
+      console.log(`[PDFService] Puppeteer launched with @sparticuz/chromium (${label})`);
+      return browser;
+    } catch (e2) {
+      console.warn(`[PDFService] Sparticuz failed for ${label} (${e2?.message}). Trying bundled Chromium`);
+      const puppeteerRegular = await import('puppeteer');
+      const browser = await puppeteerRegular.default.launch({
+        headless: 'new',
+        args: combinedArgs
+      });
+      console.log(`[PDFService] Puppeteer launched with bundled Chromium (${label})`);
+      return browser;
+    }
+  }
+}
+
 async function getRemoteAssetSizeBytes(url) {
   try {
     const controller = new AbortController();
@@ -216,8 +262,7 @@ function buildHtml({ story, childName, childAge, selectedGender, options = {} })
     sourcePages = story.pages;
   }
   const pages = (sourcePages || [])
-    .map(p => (p.toObject ? p.toObject() : p))
-    .slice(1);
+    .map(p => (p.toObject ? p.toObject() : p));
 
   const escapeHtml = (s = '') => s.replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch] || ch));
   const fontCss = frankBase64 ? `
@@ -358,41 +403,7 @@ export async function generatePdfBuffer({ story, childName, childAge, selectedGe
   const finalOptions = { ...defaultOptions, ...options };
   let browser;
   try {
-    const forcedExec = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium';
-    try {
-      console.log(`[PDFService] Trying chromium at ${forcedExec}`);
-      browser = await puppeteer.launch({
-        executablePath: forcedExec,
-        headless: 'new',
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-gpu',
-          '--no-first-run',
-          '--no-zygote'
-        ]
-      });
-      console.log(`[PDFService] Puppeteer launched with forced path`);
-    } catch (e1) {
-      console.warn(`[PDFService] Forced path failed (${e1?.message}). Trying @sparticuz/chromium`);
-      try {
-        browser = await puppeteer.launch({
-          executablePath: await chromium.executablePath(),
-          headless: chromium.headless,
-          args: chromium.args
-        });
-        console.log(`[PDFService] Puppeteer launched with @sparticuz/chromium`);
-      } catch (e2) {
-        console.warn(`[PDFService] Sparticuz failed (${e2?.message}). Trying regular puppeteer`);
-        const puppeteerRegular = await import('puppeteer');
-        browser = await puppeteerRegular.default.launch({
-          headless: 'new',
-          args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
-        });
-        console.log(`[PDFService] Puppeteer launched with bundled Chrome`);
-      }
-    }
+    browser = await launchBrowserWithFallback([], 'generate-pdf');
     const page = await browser.newPage();
     page.setDefaultNavigationTimeout(120000);
     const dsf = options?.optimizeForEmail ? 1.2 : 5;
@@ -450,10 +461,7 @@ export async function generateCoverPdfBuffer({ story, childName, childAge, optio
   const finalOptions = { ...defaultOptions, ...options };
   let browser;
   try {
-    browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox','--disable-setuid-sandbox','--disable-dev-shm-usage','--disable-accelerated-2d-canvas','--no-first-run','--no-zygote','--disable-gpu']
-    });
+    browser = await launchBrowserWithFallback([], 'generate-cover');
     const page = await browser.newPage();
     await page.setViewport({ width: 1200, height: 800, deviceScaleFactor: 5 });
     const templates = loadTemplatesOnce();
@@ -573,10 +581,7 @@ export async function generateTextOnlyPdfBuffer({ story, childName, childAge, se
       imageState: story.imageState
     };
     const html = buildHtml({ story: textOnlyStory, childName, childAge, selectedGender, options: finalOptions });
-    browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox','--disable-setuid-sandbox','--disable-dev-shm-usage','--disable-accelerated-2d-canvas','--no-first-run','--no-zygote','--disable-gpu']
-    });
+    browser = await launchBrowserWithFallback([], 'generate-text-only');
     const page = await browser.newPage();
     await page.setViewport({ width: 1200, height: 1600, deviceScaleFactor: 5 });
     await page.setContent(html, { waitUntil: ['networkidle0','domcontentloaded'] });
