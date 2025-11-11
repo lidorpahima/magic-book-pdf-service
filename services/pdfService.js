@@ -265,6 +265,14 @@ function buildHtml({ story, childName, childAge, selectedGender, options = {} })
     .map(p => (p.toObject ? p.toObject() : p));
 
   const escapeHtml = (s = '') => s.replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch] || ch));
+  const hasRegular = !!(frankBase64?.SpacerRegular);
+  const hasBold = !!(frankBase64?.FbSpacerBold);
+  const hasBlack = !!(frankBase64?.FbSpacerBlack);
+  if (!hasRegular || !hasBold || !hasBlack) {
+    console.warn(`⚠️ [PDF Fonts] Missing fonts: Regular=${hasRegular}, Bold=${hasBold}, Black=${hasBlack}`);
+  } else {
+    console.log(`✅ [PDF Fonts] All fonts loaded: Regular=${frankBase64.SpacerRegular.length} chars, Bold=${frankBase64.FbSpacerBold.length} chars, Black=${frankBase64.FbSpacerBlack.length} chars`);
+  }
   const fontCss = frankBase64 ? `
     @font-face{font-family:'FbSpacer';src:url('data:font/otf;base64,${frankBase64.SpacerRegular || ''}') format('opentype');font-weight:400;font-style:normal;font-display:swap;}
     @font-face{font-family:'FbSpacerBold';src:url('data:font/otf;base64,${frankBase64.FbSpacerBold || ''}') format('opentype');font-weight:700;font-style:normal;font-display:swap;}
