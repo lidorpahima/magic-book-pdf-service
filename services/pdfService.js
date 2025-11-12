@@ -291,10 +291,11 @@ function buildHtml({ story, childName, childAge, selectedGender, options = {} })
     .replace(/\[שֵׁם הַיַּלְדָּה\]/g, childName)
     .replace(/\[גיל הילד\]/g, childAge || '')
     .replace(/\[גִּיל הַיָּלֶד\]/g, childAge || '');
-  const pageBlock = (p, i) => {
-    const isHardcover = story?.bookType === 'ספר כריכה קשה';
-    const isSoftcover = story?.bookType === 'חוברת כריכה רכה';
-    const imageStateForPage = story?.imageState?.pages?.[i];
+  const isHardcover = story?.bookType === 'ספר כריכה קשה';
+  const isSoftcover = story?.bookType === 'חוברת כריכה רכה';
+  const isPhysical = isHardcover || isSoftcover;
+  const pageBlock = ({ page: p, originalIndex, displayIndex }) => {
+    const imageStateForPage = story?.imageState?.pages?.[originalIndex];
     const customSelectedImage = imageStateForPage?.images?.selectedImage;
     const customMainImage = imageStateForPage?.images?.mainImage;
     let imgSrc = customSelectedImage || customMainImage || p.imageUrl || '';
@@ -313,7 +314,7 @@ function buildHtml({ story, childName, childAge, selectedGender, options = {} })
         <div class="crop-mark bottom-right"></div>
       `;
       const bgStyle = imgSrc ? ` style="background-image:url('${escapeHtml(imgSrc)}')"` : '';
-      const pageNum = i + 1;
+      const pageNum = displayIndex + 1;
       const headerHtml = leafDataUrl ? `
         <div style="position:absolute;left:0;right:0;top:12mm;display:flex;align-items:center;justify-content:center;gap:2mm;pointer-events:none;z-index:5;">
           <img src="${leafDataUrl}" alt="leaf-left" style="height:6mm;opacity:.65;transform:scaleX(-1);" />
@@ -326,14 +327,14 @@ function buildHtml({ story, childName, childAge, selectedGender, options = {} })
       const textPage = `<section class="page">${cropMarks}<div class="sheet">${headerHtml}<div class="textbox">${textHtml}</div>${numberHtml}</div></section>`;
       return imagePage + textPage;
     }
-    const isRight = i % 2 === 0;
+    const isRight = displayIndex % 2 === 0;
     const cropMarks = `
       <div class="crop-mark top-left"></div>
       <div class="crop-mark top-right"></div>
       <div class="crop-mark bottom-left"></div>
       <div class="crop-mark bottom-right"></div>
     `;
-    const pageNum = i + 1;
+    const pageNum = displayIndex + 1;
     const headerHtml = leafDataUrl ? `
       <div style="position:absolute;left:0;right:0;top:6mm;display:flex;align-items:center;justify-content:center;gap:14mm;pointer-events:none;z-index:5;">
         <img src="${leafDataUrl}" alt="leaf-left" style="height:6mm;opacity:.65;transform:scaleX(-1);" />
@@ -352,7 +353,9 @@ function buildHtml({ story, childName, childAge, selectedGender, options = {} })
         </div>
       </section>`;
   };
-  const pagesHtml = pages.map(pageBlock).join('');
+  const pageEntries = pages.map((page, originalIndex) => ({ page, originalIndex }));
+  const filteredEntries = isPhysical ? pageEntries.filter(entry => entry.originalIndex !== 0) : pageEntries;
+  const pagesHtml = filteredEntries.map((entry, displayIndex) => pageBlock({ ...entry, displayIndex })).join('');
   let bookTypeKey = 'digital';
   if (story.bookType === 'ספר כריכה קשה') {
     bookTypeKey = 'hardcover';
