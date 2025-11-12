@@ -88,7 +88,6 @@
 
     /* Text section - exactly 20% of the height, at the bottom */
     .cover-text {
-      /* Your existing styles */
       height: 20%;
       width: 100%;
       display: flex;
@@ -99,22 +98,18 @@
       padding: 4mm 8mm;
       text-align: center;
       box-sizing: border-box;
-      background: transparent;
-
-      border-top: 5px solid rgba(0, 0, 0, 0.983);
-      
-      box-shadow: 0 -3mm 6mm rgba(0, 0, 0, 0.63);
-      
-      -webkit-mask-image: linear-gradient(to top, black 80%, transparent 100%);
-      mask-image: linear-gradient(to top, black 80%, transparent 100%);
+      background: linear-gradient(to top, rgba(17, 24, 39, 0.88) 0%, rgba(17, 24, 39, 0.72) 60%, rgba(17, 24, 39, 0.0) 100%);
+      border-top: 5px solid rgba(17, 24, 39, 0.9);
+      box-shadow: 0 -4mm 12mm rgba(17, 24, 39, 0.45);
+      color: #f8fafc;
     }
 
     .title {
       font-family: 'SpacerRegular', 'FbSpacer', Arial, Helvetica, sans-serif;
       font-size: 24pt;
       line-height: 1.25;
-      font-weight: 700;
-      color: #4c1d95;
+      font-weight: 800;
+      color: #f9fafb;
       margin: 0;
       text-align: center;
     }
@@ -123,7 +118,7 @@
       font-family: 'SpacerRegular', 'FbSpacer', Arial, Helvetica, sans-serif;
       font-size: 24pt;
       line-height: 1.45;
-      color: #374151;
+      color: #e0e7ff;
       margin: 0;
       text-align: center;
     }
@@ -139,7 +134,7 @@
     .child {
       font-family: 'SpacerRegular', 'FbSpacer', Arial, Helvetica, sans-serif;
       font-size: 14pt;
-      color: #111827;
+      color: #f1f5f9;
       margin-top: 2mm;
       font-weight: 700;
       text-align: center;

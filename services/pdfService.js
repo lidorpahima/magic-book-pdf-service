@@ -384,7 +384,18 @@ function buildHtml({ story, childName, childAge, selectedGender, options = {} })
   } else if (coverImageSrc && !coverImageSrc.startsWith('data:')) {
     coverImageSrc = optimizeImageUrl(coverImageSrc, { width: 2400, quality: 90, fetchFormat: 'auto' });
   }
-  const dedicationText = (story?.dedicationMessage || story?.backCoverText || '').trim();
+  const rawDedication = (story?.dedicationMessage || story?.backCoverText || '').trim();
+  const fallbackChildName =
+    childName ||
+    story?.childName ||
+    story?.bookData?.childName ||
+    story?.bookContent?.childName ||
+    '';
+  const defaultDedication = fallbackChildName
+    ? `ספר זה נוצר באהבה עבור ${fallbackChildName}`
+    : 'ספר זה נוצר באהבה עבור ילד אהוב';
+  const resolvedDedication = rawDedication || defaultDedication;
+  const dedicationText = fixText(resolvedDedication).trim();
   const dedicationTitle = (story?.title || story?.bookData?.title || 'מוקדש באהבה');
   const blankPages = '';
   return template
