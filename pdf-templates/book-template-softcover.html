@@ -285,9 +285,33 @@
     .dedication-card::after { display: none; }
     .dedication-title {
       font-family: 'FbSpacer', 'FbSpacerBold', 'FbSpacerBlack', Arial, Helvetica, sans-serif;
-      font-weight: 700;      font-size: 28pt;
+      font-weight: 700;
+      font-size: 28pt;
       color: var(--dedication-text);
       margin-bottom: 4mm;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .dedication-title-with-leaves {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8mm;
+    }
+    .dedication-leaf-left,
+    .dedication-leaf-right {
+      height: 8mm;
+      opacity: 0.65;
+    }
+    .dedication-leaf-left {
+      transform: scaleX(-1);
+    }
+    .dedication-title-text {
+      font-family: 'FbSpacer', 'FbSpacerBold', 'FbSpacerBlack', Arial, Helvetica, sans-serif;
+      font-weight: 700;
+      font-size: 28pt;
+      color: var(--dedication-text);
     }
     .dedication-subtitle {
       font-size: 16pt;

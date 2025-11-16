@@ -399,7 +399,12 @@ function buildHtml({ story, childName, childAge, selectedGender, options = {} })
     : 'ספר זה נוצר באהבה עבור ילד אהוב';
   const resolvedDedication = rawDedication || defaultDedication;
   const dedicationText = fixText(resolvedDedication).trim();
-  const dedicationTitle = (story?.title || story?.bookData?.title || 'מוקדש באהבה');
+  const dedicationTitleText = (story?.title || story?.bookData?.title || 'מוקדש באהבה');
+  const isPhysicalBook = bookTypeKey === 'hardcover' || bookTypeKey === 'softcover';
+  // Build dedication title with leaf ornaments for physical books
+  const dedicationTitle = isPhysicalBook && leafDataUrl
+    ? `<div class="dedication-title-with-leaves"><img src="${leafDataUrl}" alt="leaf-left" class="dedication-leaf-left" /><span class="dedication-title-text">${escapeHtml(dedicationTitleText)}</span><img src="${leafDataUrl}" alt="leaf-right" class="dedication-leaf-right" /></div>`
+    : escapeHtml(dedicationTitleText);
   const blankPages = '';
   return template
     .replace('/*__FONT_CSS__*/', fontCss + emailOptimizeCss)
