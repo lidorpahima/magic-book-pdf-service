@@ -401,6 +401,10 @@ function buildHtml({ story, childName, childAge, selectedGender, options = {} })
   const dedicationText = fixText(resolvedDedication).trim();
   const dedicationTitle = (story?.title || story?.bookData?.title || 'מוקדש באהבה');
   const blankPages = '';
+  // Add leaf ornaments around dedication title for physical books
+  const dedicationTitleWithLeaves = isPhysical && leafDataUrl
+    ? `<div style="display:flex;align-items:center;justify-content:center;gap:4mm;flex-wrap:nowrap;width:100%;"><img src="${leafDataUrl}" alt="leaf-left" style="height:6mm;opacity:.65;transform:scaleX(-1);flex-shrink:0;" /><span style="font-family:'FbSpacer','FbSpacerBold','FbSpacerBlack',Arial,Helvetica,sans-serif;font-weight:700;font-size:28pt;color:var(--dedication-text);white-space:nowrap;">${escapeHtml(dedicationTitle)}</span><img src="${leafDataUrl}" alt="leaf-right" style="height:6mm;opacity:.65;flex-shrink:0;" /></div>`
+    : escapeHtml(dedicationTitle);
   return template
     .replace('/*__FONT_CSS__*/', fontCss + emailOptimizeCss)
     .replace(/{{BOOK_TITLE}}/g, escapeHtml(story?.title || ''))
@@ -410,7 +414,7 @@ function buildHtml({ story, childName, childAge, selectedGender, options = {} })
     .replace(/{{COVER_IMAGE_URL}}/g, escapeHtml(coverImageSrc || ''))
     .replace(/{{SITE_LOGO_URL}}/g, siteLogoDataUrl || '')
     .replace(/{{BLANK_PAGES}}/g, blankPages)
-    .replace(/{{DEDICATION_PAGE}}/g, `<section class="page dedication"><div class="dedication-sheet"><div class="dedication-card"><div class="dedication-title">${dedicationTitle}</div><div class="dedication-text">${escapeHtml(dedicationText)}</div><div class="dedication-accent">Magical-Book.com</div></div></div></section>`)
+    .replace(/{{DEDICATION_PAGE}}/g, `<section class="page dedication"><div class="dedication-sheet"><div class="dedication-card"><div class="dedication-title">${dedicationTitleWithLeaves}</div><div class="dedication-text">${escapeHtml(dedicationText)}</div><div class="dedication-accent">Magical-Book.com</div></div></div></section>`)
     .replace(/{{PAGES}}/g, pagesHtml);
 }
 
