@@ -343,12 +343,17 @@ function buildHtml({ story, childName, childAge, selectedGender, options = {} })
       </div>` : '';
     const numberHtml = `
       <div style="position:absolute;left:0;right:0;bottom:6mm;display:flex;align-items:center;justify-content:center;pointer-events:none;color:#5a6573;font-size:10pt;z-index:5;">- ${pageNum} -</div>`;
+    const stackContent = isRight
+      ? `<div class="imgbox">${imgHtml}</div><div class="textbox">${textHtml}</div>`
+      : `<div class="textbox">${textHtml}</div><div class="imgbox">${imgHtml}</div>`;
     return `
       <section class="page ${isRight ? 'right' : 'left'}">
         ${cropMarks}
         <div class="sheet">
           ${headerHtml}
-          ${isRight ? `<div class="imgbox">${imgHtml}</div><div class="textbox">${textHtml}</div>` : `<div class="textbox">${textHtml}</div><div class="imgbox">${imgHtml}</div>`}
+          <div class="content-stack">
+            ${stackContent}
+          </div>
           ${numberHtml}
         </div>
       </section>`;
