@@ -146,29 +146,31 @@
     .sheet {
       display: flex;
       flex-direction: column;
-      gap: 6mm;
+      gap: 8mm;
       align-items: stretch;
-      justify-content: flex-start;
+      justify-content: center;
       background: url('https://res.cloudinary.com/dqervww7v/image/upload/v1757672055/Paper-Texture-4_agt5rt.jpg') center/cover no-repeat;
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
-      padding: 10mm;
+      padding: 8mm; /* inner margin on the paper */
       position: relative;
       height: 100vh; /* fill the whole page */
       width: 100vw;
       max-width: none;
+      min-height: auto;
       margin: 0 auto;
       overflow: hidden; /* prevent content from spilling to next page */
       box-sizing: border-box;
     }
 
-    .content-stack {
-      flex: 1;
+    .page-content {
       display: flex;
       flex-direction: column;
-      gap: 6mm;
-      min-height: 0;
+      gap: 8mm;
+      flex: 1;
+      overflow: hidden; /* prevent content overflow */
+      max-height: calc(100vh - 16mm); /* account for padding */
     }
 
     .imgbox {
@@ -177,8 +179,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      flex: 1 1 50%;
-      min-height: 0;
+      min-height: 140mm;
+      max-height: 220mm; /* limit maximum height */
+      order: 2;
+      flex-shrink: 0; /* prevent shrinking */
     }
 
     .img {
@@ -199,9 +203,8 @@
       padding: 10mm;
       display: flex;
       align-items: center;
-      justify-content: center;
-      flex: 1 1 50%;
-      min-height: 0;
+      order: 1;
+      max-height: 150mm; /* further increased maximum height */
       overflow: hidden; /* prevent text overflow */
     }
  
@@ -213,10 +216,10 @@
       white-space: pre-wrap;
       text-align: right;
       overflow: hidden; /* do not spill to next page */
-      width: 100%;
-      max-height: 100%;
-      display: block;
-      transition: font-size 0.1s ease, line-height 0.1s ease;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 30; /* further increased line clamp */
+      line-clamp: 30; /* standard property for compatibility */
     }
 
     .ornament {
@@ -386,37 +389,5 @@
       </div>
     </section>
   </div>
-  <script>
-    (function () {
-      const MIN_FONT_PT = 12;
-      const MIN_LINE_HEIGHT = 1.2;
-      const STEP = 0.5;
-      function fits(story, box) {
-        return story.scrollHeight <= box.clientHeight && story.scrollWidth <= box.clientWidth;
-      }
-      function resizeStory(story) {
-        const box = story.closest('.textbox');
-        if (!box) return;
-        let fontSize = parseFloat(getComputedStyle(story).fontSize) || 18;
-        let lineHeight = parseFloat(getComputedStyle(story).lineHeight) || fontSize * 1.4;
-        let guard = 0;
-        while (!fits(story, box) && fontSize > MIN_FONT_PT && guard < 80) {
-          fontSize = Math.max(MIN_FONT_PT, fontSize - STEP);
-          lineHeight = Math.max(MIN_LINE_HEIGHT, lineHeight - STEP * 0.05);
-          story.style.fontSize = fontSize + 'pt';
-          story.style.lineHeight = lineHeight.toString();
-          guard += 1;
-        }
-      }
-      function runAutoFit() {
-        document.querySelectorAll('.story').forEach(resizeStory);
-      }
-      if (document.readyState === 'complete') {
-        runAutoFit();
-      } else {
-        window.addEventListener('load', runAutoFit, { once: true });
-      }
-    })();
-  </script>
 </body>
 </html>
