@@ -439,14 +439,15 @@ export async function generatePdfBuffer({ story, childName, childAge, selectedGe
     await page.setViewport({ width: vw, height: vh, deviceScaleFactor: dsf });
     const html = buildHtml({ story, childName, childAge, selectedGender, options: finalOptions });
     await logHtmlAssetWeights('digital-html', html);
-    await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 120000 });
+    await page.setContent(html, { waitUntil: ['domcontentloaded', 'networkidle0'], timeout: 120000 });
     await page.emulateMediaType('print');
     await page.evaluateHandle('document.fonts.ready');
     await page.evaluate(() => {
       const wait = (img) => new Promise(res => {
-        if (img.complete) return res();
-        const t = setTimeout(res, 15000);
-        img.onload = img.onerror = () => { clearTimeout(t); res(); };
+        if (img.complete && img.naturalHeight !== 0) return res();
+        const t = setTimeout(res, 500000); // Increased to 50s
+        img.onload = () => { clearTimeout(t); res(); };
+        img.onerror = () => { clearTimeout(t); res(); };
       });
       return Promise.all([...document.images].map(wait));
     });
@@ -554,14 +555,15 @@ export async function generateCoverPdfBuffer({ story, childName, childAge, optio
       .replace(/{{CHILD_PHOTO_URL}}/g, escapeHtml(childPhotoSrc))
       .replace(/{{SITE_LOGO_URL}}/g, siteLogoDataUrl || '')
       .replace(/{{DEDICATION_MESSAGE}}/g, escapeHtml(story?.dedicationMessage || 'ספר מיוחד זה נוצר במיוחד עבורך, עם אהבה רבה'));
-    await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 120000 });
+    await page.setContent(html, { waitUntil: ['domcontentloaded', 'networkidle0'], timeout: 120000 });
     await page.emulateMediaType('print');
     await page.evaluateHandle('document.fonts.ready');
     await page.evaluate(() => {
       const wait = (img) => new Promise(res => {
-        if (img.complete) return res();
-        const t = setTimeout(res, 15000);
-        img.onload = img.onerror = () => { clearTimeout(t); res(); };
+        if (img.complete && img.naturalHeight !== 0) return res();
+        const t = setTimeout(res, 45000); // Increased to 45s
+        img.onload = () => { clearTimeout(t); res(); };
+        img.onerror = () => { clearTimeout(t); res(); };
       });
       return Promise.all([...document.images].map(wait));
     });
