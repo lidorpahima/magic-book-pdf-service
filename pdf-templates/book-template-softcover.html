@@ -177,16 +177,11 @@
       align-items: center;
       justify-content: center;
       width: 100%;
-      flex: 1; /* Share space with text */
+      height: 100%; /* fill entire sheet */
       min-height: 0;
     }
-    /* Ensure image is visible and fits container */
-    .img { 
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+    /* When using background image on the page, we don't need the <img>. Keep class for fallback */
+    .img { display: none; }
     .img-fallback {
       width: 100%;
       height: 100%;
@@ -201,14 +196,11 @@
     }
 
     .textbox {
-      padding: 10mm; /* slightly reduced padding */
+      padding: 16mm; /* more space around text */
       display: flex;
       align-items: center; /* vertical center */
       justify-content: center; /* horizontal center */
-      width: 100%;
-      flex: 0 0 auto; /* Allow text to take needed space */
-      min-height: 25%; /* Ensure text area has some height */
-      max-height: 40%; /* Limit text area so image stays dominant */
+      height: 100%; /* fill full page area for perfect centering */
       box-sizing: border-box;
       background: transparent;
       border: none;
