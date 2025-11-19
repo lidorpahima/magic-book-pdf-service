@@ -9,6 +9,7 @@ import { getDominantGradientColors, getMonochromaticGradient, generateDynamicGra
 let cachedFontBase64 = null;
 let cachedCoverFonts = null;
 let cachedTemplates = {};
+const NAVIGATION_TIMEOUT_MS = Number(process.env.NAVIGATION_TIMEOUT_MS || 600000);
 
 const BASE_CHROMIUM_ARGS = [
   '--no-sandbox',
@@ -432,16 +433,22 @@ export async function generatePdfBuffer({ story, childName, childAge, selectedGe
   try {
     browser = await launchBrowserWithFallback([], 'generate-pdf');
     const page = await browser.newPage();
-    page.setDefaultNavigationTimeout(120000);
+    page.setDefaultNavigationTimeout(NAVIGATION_TIMEOUT_MS);
     const dsf = options?.optimizeForEmail ? 1.2 : 5;
     const vw = options?.optimizeForEmail ? 1000 : 1200;
     const vh = options?.optimizeForEmail ? 1400 : 1600;
     await page.setViewport({ width: vw, height: vh, deviceScaleFactor: dsf });
     const html = buildHtml({ story, childName, childAge, selectedGender, options: finalOptions });
+    console.log(`[PDFService] (generate) HTML size ~ ${(html.length / 1024 / 1024).toFixed(2)}MB, navTimeout=${NAVIGATION_TIMEOUT_MS}ms`);
     await logHtmlAssetWeights('digital-html', html);
-    await page.setContent(html, { waitUntil: ['domcontentloaded', 'networkidle0'], timeout: 120000 });
+    const loadStart = Date.now();
+    await page.setContent(html, { waitUntil: ['domcontentloaded', 'networkidle0'], timeout: NAVIGATION_TIMEOUT_MS });
+    console.log(`[PDFService] (generate) DOM loaded in ${Date.now() - loadStart}ms`);
     await page.emulateMediaType('print');
     await page.evaluateHandle('document.fonts.ready');
+    const imgCount = await page.evaluate(() => document.images.length);
+    console.log(`[PDFService] (generate) Found ${imgCount} images, waiting for load...`);
+    const imgWaitStart = Date.now();
     await page.evaluate(() => {
       const wait = (img) => new Promise(res => {
         if (img.complete && img.naturalHeight !== 0) return res();
@@ -451,6 +458,7 @@ export async function generatePdfBuffer({ story, childName, childAge, selectedGe
       });
       return Promise.all([...document.images].map(wait));
     });
+    console.log(`[PDFService] (generate) Images resolved in ${Date.now() - imgWaitStart}ms`);
     const isHardcover = story?.bookType === 'ספר כריכה קשה';
     const isSoftcover = story?.bookType === 'חוברת כריכה רכה';
     const isPhysical = isHardcover || isSoftcover;
@@ -462,6 +470,7 @@ export async function generatePdfBuffer({ story, childName, childAge, selectedGe
       pageWidth = `${220 * 2 + spineWidth + bleedSize * 2}mm`;
       pageHeight = `${220 + bleedSize * 2}mm`;
     }
+    const pdfStart = Date.now();
     const pdf = await page.pdf({
       ...(isPhysical ? { width: pageWidth, height: pageHeight } : { format: finalOptions.format, landscape: finalOptions.orientation === 'landscape' }),
       margin: isPhysical ? { top: '0mm', right: '0mm', bottom: '0mm', left: '0mm' } : finalOptions.margin,
@@ -472,6 +481,7 @@ export async function generatePdfBuffer({ story, childName, childAge, selectedGe
       footerTemplate: '<div style="font-size:9pt;width:100%;text-align:center;color:#5a6573;font-family:PFTFrank;"><span class="pageNumber"></span></div>',
       scale: 1.0
     });
+    console.log(`[PDFService] (generate) PDF rendered in ${Date.now() - pdfStart}ms (total ${Date.now() - loadStart}ms since DOM load).`);
     return pdf;
   } finally {
     if (browser) await browser.close();
@@ -492,6 +502,7 @@ export async function generateCoverPdfBuffer({ story, childName, childAge, optio
     browser = await launchBrowserWithFallback([], 'generate-cover');
     const page = await browser.newPage();
     await page.setViewport({ width: 1200, height: 800, deviceScaleFactor: 5 });
+    page.setDefaultNavigationTimeout(NAVIGATION_TIMEOUT_MS);
     const templates = loadTemplatesOnce();
     const frankBase64 = loadFontOnce();
     const coverFonts = loadCoverFontsOnce();
@@ -555,7 +566,7 @@ export async function generateCoverPdfBuffer({ story, childName, childAge, optio
       .replace(/{{CHILD_PHOTO_URL}}/g, escapeHtml(childPhotoSrc))
       .replace(/{{SITE_LOGO_URL}}/g, siteLogoDataUrl || '')
       .replace(/{{DEDICATION_MESSAGE}}/g, escapeHtml(story?.dedicationMessage || 'ספר מיוחד זה נוצר במיוחד עבורך, עם אהבה רבה'));
-    await page.setContent(html, { waitUntil: ['domcontentloaded', 'networkidle0'], timeout: 120000 });
+    await page.setContent(html, { waitUntil: ['domcontentloaded', 'networkidle0'], timeout: NAVIGATION_TIMEOUT_MS });
     await page.emulateMediaType('print');
     await page.evaluateHandle('document.fonts.ready');
     await page.evaluate(() => {
@@ -613,7 +624,8 @@ export async function generateTextOnlyPdfBuffer({ story, childName, childAge, se
     browser = await launchBrowserWithFallback([], 'generate-text-only');
     const page = await browser.newPage();
     await page.setViewport({ width: 1200, height: 1600, deviceScaleFactor: 5 });
-    await page.setContent(html, { waitUntil: ['networkidle0','domcontentloaded'] });
+    page.setDefaultNavigationTimeout(NAVIGATION_TIMEOUT_MS);
+    await page.setContent(html, { waitUntil: ['networkidle0','domcontentloaded'], timeout: NAVIGATION_TIMEOUT_MS });
     await page.emulateMediaType('print');
     await page.evaluateHandle('document.fonts.ready');
     await page.evaluate(() => {
