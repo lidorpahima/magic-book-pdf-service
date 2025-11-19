@@ -31,7 +31,7 @@ app.post('/api/pdf/generate', async (req, res) => {
   try {
     const reqId = req.headers['x-request-id'] || 'no-id';
     console.log(`[PDF MS] (${reqId}) start /api/pdf/generate`);
-    const REQUEST_TIMEOUT_MS = Number(process.env.REQUEST_TIMEOUT_MS || 55000);
+    const REQUEST_TIMEOUT_MS = Number(process.env.REQUEST_TIMEOUT_MS || 6000000);
     const { story, selectedStory, childName, childAge, selectedGender, options = {} } = req.body || {};
     const effectiveStory = story || selectedStory;
     if (!effectiveStory || !childName || !selectedGender) {
@@ -67,7 +67,7 @@ app.post('/api/pdf/generate-text-only', async (req, res) => {
   try {
     const reqId = req.headers['x-request-id'] || 'no-id';
     console.log(`[PDF MS] (${reqId}) start /api/pdf/generate-text-only`);
-    const REQUEST_TIMEOUT_MS = Number(process.env.REQUEST_TIMEOUT_MS || 55000);
+    const REQUEST_TIMEOUT_MS = Number(process.env.REQUEST_TIMEOUT_MS || 600000);
     const { story, childName, childAge, selectedGender, options = {} } = req.body || {};
     if (!story || !childName || !selectedGender) {
       return res.status(400).json({ error: 'Missing required fields: story, childName, selectedGender' });
@@ -102,7 +102,7 @@ app.post('/api/pdf/generate-cover', async (req, res) => {
   try {
     const reqId = req.headers['x-request-id'] || 'no-id';
     console.log(`[PDF MS] (${reqId}) start /api/pdf/generate-cover`);
-    const REQUEST_TIMEOUT_MS = Number(process.env.REQUEST_TIMEOUT_MS || 55000);
+    const REQUEST_TIMEOUT_MS = Number(process.env.REQUEST_TIMEOUT_MS || 600000);
     const { story, childName, childAge, options = {} } = req.body || {};
     if (!story || !childName) {
       return res.status(400).json({ error: 'Missing required fields: story, childName' });
