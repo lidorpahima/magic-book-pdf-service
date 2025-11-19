@@ -364,7 +364,8 @@ function buildHtml({ story, childName, childAge, selectedGender, options = {} })
       </section>`;
   };
   const pageEntries = pages.map((page, originalIndex) => ({ page, originalIndex }));
-  const filteredEntries = isPhysical ? pageEntries.filter(entry => entry.originalIndex !== 0) : pageEntries;
+  // Skip page 0 for both physical and digital books
+  const filteredEntries = pageEntries.filter(entry => entry.originalIndex !== 0);
   const pagesHtml = filteredEntries.map((entry, displayIndex) => pageBlock({ ...entry, displayIndex })).join('');
   
   console.log('🧱 [PDF Service] Pages HTML debug:', {
