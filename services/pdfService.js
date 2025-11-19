@@ -264,6 +264,16 @@ function buildHtml({ story, childName, childAge, selectedGender, options = {} })
   const pages = (sourcePages || [])
     .map(p => (p.toObject ? p.toObject() : p));
 
+  console.log('📝 [PDF Service] Digital PDF text debug:', {
+    totalPages: pages.length,
+    bookType: story?.bookType,
+    sampleTexts: pages.slice(0, 3).map((pg, idx) => ({
+      index: idx,
+      preview: typeof pg?.text === 'string' ? pg.text.slice(0, 80) : null,
+      hasText: !!pg?.text
+    }))
+  });
+
   const escapeHtml = (s = '') => s.replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch] || ch));
   const hasRegular = !!(frankBase64?.SpacerRegular);
   const hasBold = !!(frankBase64?.FbSpacerBold);
@@ -356,6 +366,15 @@ function buildHtml({ story, childName, childAge, selectedGender, options = {} })
   const pageEntries = pages.map((page, originalIndex) => ({ page, originalIndex }));
   const filteredEntries = isPhysical ? pageEntries.filter(entry => entry.originalIndex !== 0) : pageEntries;
   const pagesHtml = filteredEntries.map((entry, displayIndex) => pageBlock({ ...entry, displayIndex })).join('');
+  
+  console.log('🧱 [PDF Service] Pages HTML debug:', {
+    totalEntries: filteredEntries.length,
+    htmlLength: pagesHtml.length,
+    firstPageHtml: pagesHtml.slice(0, 300),
+    containsStoryClass: pagesHtml.includes('class="story"'),
+    textSample: pagesHtml.match(/<p class="story">([^<]{0,100})/)?.[1] || 'NOT FOUND'
+  });
+  
   let bookTypeKey = 'digital';
   if (story.bookType === 'ספר כריכה קשה') {
     bookTypeKey = 'hardcover';
