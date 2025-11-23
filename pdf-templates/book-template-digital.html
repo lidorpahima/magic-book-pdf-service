@@ -1,24 +1,27 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{{BOOK_TITLE}} - {{CHILD_NAME}} - Hardcover</title>
   <style>
-        :root {
-        --book-height: 262mm;
-        --book-width: 210mm;
-        --spine-width: 15mm;
-        --cover-bleed-size: 20mm; 
-        --cover-background-color: #2c2a4a;
+    :root {
+      --book-height: 262mm;
+      --book-width: 210mm;
+      --spine-width: 15mm;
+      --cover-bleed-size: 20mm;
+      --cover-background-color: #2c2a4a;
     }
+
     /*__FONT_CSS__*/
     @page {
       size: 210mm 262mm;
       margin: 0;
     }
 
-    html, body {
+    html,
+    body {
       padding: 0;
       margin: 0;
       background: #fafaf9;
@@ -80,7 +83,7 @@
       background: rgba(255, 255, 255, 0.95);
 
       border-top: 5px solid rgba(0, 0, 0, 0.983);
-      
+
       box-shadow: 0 -3mm 6mm rgba(0, 0, 0, 0.63);
     }
 
@@ -102,6 +105,7 @@
       margin: 0;
       text-align: center;
     }
+
     .description {
       font-family: 'SpacerRegular', 'FbSpacer', Arial, Helvetica, sans-serif;
       font-size: 34pt;
@@ -125,7 +129,8 @@
     section.page {
       page-break-inside: avoid;
       page-break-after: always;
-      padding: 0; /* remove outer padding so background fills */
+      padding: 0;
+      /* remove outer padding so background fills */
       position: relative;
       box-sizing: border-box;
       display: flex;
@@ -150,14 +155,17 @@
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
-      padding: 8mm; /* inner margin on the paper */
+      padding: 8mm;
+      /* inner margin on the paper */
       position: relative;
-      height: 100vh; /* fill the whole page */
+      height: 100vh;
+      /* fill the whole page */
       width: 100vw;
       max-width: none;
       min-height: auto;
       margin: 0 auto;
-      overflow: hidden; /* prevent content from spilling to next page */
+      overflow: hidden;
+      /* prevent content from spilling to next page */
       box-sizing: border-box;
     }
 
@@ -166,8 +174,10 @@
       flex-direction: column;
       gap: 8mm;
       flex: 1;
-      overflow: hidden; /* prevent content overflow */
-      max-height: calc(100vh - 16mm); /* account for padding */
+      overflow: hidden;
+      /* prevent content overflow */
+      max-height: calc(100vh - 16mm);
+      /* account for padding */
     }
 
     .imgbox {
@@ -176,10 +186,12 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 100mm;
-      max-height: 180mm; /* limit maximum height */
+      min-height: 80mm;
+      max-height: 160mm;
+      /* limit maximum height */
       order: 2;
-      flex-shrink: 0; /* prevent shrinking */
+      flex-shrink: 0;
+      /* prevent shrinking */
     }
 
     .img {
@@ -201,10 +213,12 @@
       display: flex;
       align-items: center;
       order: 1;
-      max-height: 150mm; /* further increased maximum height */
-      overflow: hidden; /* prevent text overflow */
+      max-height: 180mm;
+      /* further increased maximum height */
+      overflow: hidden;
+      /* prevent text overflow */
     }
- 
+
     .story {
       margin: 0;
       font-family: 'FbSpacer', 'FbSpacerBold', 'FbSpacerBlack', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans', Arial, sans-serif;
@@ -212,11 +226,14 @@
       line-height: 1.4;
       white-space: pre-wrap;
       text-align: right;
-      overflow: hidden; /* do not spill to next page */
+      overflow: hidden;
+      /* do not spill to next page */
       display: -webkit-box;
       -webkit-box-orient: vertical;
-      -webkit-line-clamp: 30; /* further increased line clamp */
-      line-clamp: 30; /* standard property for compatibility */
+      -webkit-line-clamp: 30;
+      /* further increased line clamp */
+      line-clamp: 30;
+      /* standard property for compatibility */
     }
 
     .ornament {
@@ -240,6 +257,7 @@
       overflow: hidden;
       display: flex;
     }
+
     .dedication-sheet {
       position: relative;
       height: 100vh;
@@ -252,22 +270,27 @@
       justify-content: center;
       padding: 18mm;
     }
+
     .dedication-card {
       width: 100%;
       max-width: 80%;
       text-align: center;
-      background: rgba(255,255,255,0.9);
+      background: rgba(255, 255, 255, 0.9);
       border-radius: 6mm;
       padding: 12mm;
-      box-shadow: 0 4mm 12mm rgba(0,0,0,0.08);
+      box-shadow: 0 4mm 12mm rgba(0, 0, 0, 0.08);
     }
+
     .dedication-title {
       font-family: 'FbSpacer', 'FbSpacerBold', 'FbSpacerBlack', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans', Arial, sans-serif;
       font-size: 26pt;
       color: #4c1d95;
       margin-bottom: 4mm;
     }
-    .dedication-subtitle { display:none; }
+
+    .dedication-subtitle {
+      display: none;
+    }
 
     .dedication-text {
       font-family: 'FbSpacer', 'SpacerRegular', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans', Arial, sans-serif;
@@ -276,6 +299,7 @@
       color: #111827;
       white-space: pre-wrap;
     }
+
     .dedication-accent {
       margin-top: 8mm;
       font-size: 11pt;
@@ -283,84 +307,90 @@
       opacity: 0.7;
     }
 
-        .back-cover { 
-            position: relative;
-            width: 100%; 
-            height: 100vh;
-            padding: 15mm; 
-            box-sizing: border-box; 
-            display: flex; 
-            flex-direction: column;
-            justify-content: space-between;
-            overflow: hidden;
-        }
-        /* Blurred background overlay for back cover (similar to front cover) */
-        .back-cover::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: url('{{COVER_IMAGE_URL}}');
-            background-size: 130% auto;
-            background-position: center top;
-            filter: blur(80px) saturate(1.1);
-            transform: scale(1.1);
-            opacity: 0.85;
-            pointer-events: none;
-            z-index: 0;
-        }
-        .back-cover .blurb { 
-            font-size: 11pt; 
-            line-height: 1.6; 
-            color: #111827; 
-            position: relative;
-            z-index: 2;
-            background: rgba(255, 255, 255, 0.85);
-            padding: 8mm;
-            border-radius: 4mm;
-            backdrop-filter: blur(10px);
-        }
-        .back-cover .barcode { 
-            align-self: flex-start; 
-            width: 40mm; 
-            height: 40mm; 
-            background-color: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            padding: 2mm; 
-            box-sizing: border-box;
-            position: relative;
-            z-index: 2;
-            backdrop-filter: blur(10px);
-            border-radius: 2mm;
-        }
-        .back-cover .barcode img { width: 100%; height: 100%; object-fit: contain; }
+    .back-cover {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      padding: 15mm;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
 
-        .cover-spread {
-            display: flex;
-            width: calc((var(--book-width) * 2) + var(--spine-width));
-            height: var(--book-height);
-            color: white;
-            background: url('https://res.cloudinary.com/dqervww7v/image/upload/v1757672055/Paper-Texture-4_agt5rt.jpg') center/cover no-repeat;
-            background-size: cover;
-            background-position: center;
-            position: absolute;
-            top: var(--cover-bleed-size);
-            left: var(--cover-bleed-size);
-        }
+    /* Blurred background overlay for back cover (similar to front cover) */
+    .back-cover::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url('{{COVER_IMAGE_URL}}');
+      background-size: 130% auto;
+      background-position: center top;
+      filter: blur(80px) saturate(1.1);
+      transform: scale(1.1);
+      opacity: 0.85;
+      pointer-events: none;
+      z-index: 0;
+    }
 
- 
+    .back-cover .blurb {
+      font-size: 11pt;
+      line-height: 1.6;
+      color: #111827;
+      position: relative;
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 8mm;
+      border-radius: 4mm;
+      backdrop-filter: blur(10px);
+    }
 
+    .back-cover .barcode {
+      align-self: flex-start;
+      width: 40mm;
+      height: 40mm;
+      background-color: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      padding: 2mm;
+      box-sizing: border-box;
+      position: relative;
+      z-index: 2;
+      backdrop-filter: blur(10px);
+      border-radius: 2mm;
+    }
+
+    .back-cover .barcode img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .cover-spread {
+      display: flex;
+      width: calc((var(--book-width) * 2) + var(--spine-width));
+      height: var(--book-height);
+      color: white;
+      background: url('https://res.cloudinary.com/dqervww7v/image/upload/v1757672055/Paper-Texture-4_agt5rt.jpg') center/cover no-repeat;
+      background-size: cover;
+      background-position: center;
+      position: absolute;
+      top: var(--cover-bleed-size);
+      left: var(--cover-bleed-size);
+    }
   </style>
 </head>
+
 <body>
   <div class="container">
     <!-- FRONT COVER -->
     <section class="cover">
       <!-- Image section (80%) -->
       <div class="cover-image"></div>
-      
+
       <!-- Text section (20% with 10mm margin from bottom) -->
       <div class="cover-text">
         <h1 class="title">{{BOOK_TITLE}}</h1>
@@ -373,18 +403,20 @@
 
     <!-- INNER PAGES -->
     {{PAGES}}
-  
+
 
     <!-- BACK COVER -->
     <section class="back-cover">
       <div class="blurb">
-          <p><strong>{{BOOK_TITLE}}</strong></p>
-          <p class="subtitle">{{BOOK_SUBTITLE}}</p>
+        <p><strong>{{BOOK_TITLE}}</strong></p>
+        <p class="subtitle">{{BOOK_SUBTITLE}}</p>
       </div>
       <div class="barcode">
-          <img src="https://res.cloudinary.com/dqervww7v/image/upload/v1759225973/qrchimpX1024_o1xgqy.png" alt="קוד QR של הספר">
+        <img src="https://res.cloudinary.com/dqervww7v/image/upload/v1759225973/qrchimpX1024_o1xgqy.png"
+          alt="קוד QR של הספר">
       </div>
     </section>
   </div>
 </body>
+
 </html>
