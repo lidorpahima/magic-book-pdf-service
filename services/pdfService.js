@@ -324,7 +324,8 @@ function buildHtml({ story, childName, childAge, selectedGender, options = {} })
         <div class="crop-mark bottom-right"></div>
       `;
       const bgStyle = imgSrc ? ` style="background-image:url('${escapeHtml(imgSrc)}')"` : '';
-      const pageNum = displayIndex + 1;
+      // Physical page numbering: text pages are odd (1, 3, 5...), image pages are even (2, 4, 6...) with no number shown
+      const pageNum = (displayIndex * 2) + 1;
       const headerHtml = leafDataUrl ? `
         <div style="position:absolute;left:0;right:0;top:12mm;display:flex;align-items:center;justify-content:center;gap:2mm;pointer-events:none;z-index:5;">
           <img src="${leafDataUrl}" alt="leaf-left" style="height:6mm;opacity:.65;transform:scaleX(-1);" />
@@ -333,9 +334,10 @@ function buildHtml({ story, childName, childAge, selectedGender, options = {} })
         </div>` : '';
       const numberHtml = `
         <div style="position:absolute;left:0;right:0;bottom:12mm;display:flex;align-items:center;justify-content:center;pointer-events:none;color:#5a6573;font-size:24pt;z-index:5;">- ${pageNum} -</div>`;
+      // Order: Text page first (odd number), then Image page (even, no number)
       const imagePage = `<section class="page bg-image"${bgStyle}>${cropMarks}<div class="sheet"><div class="imgbox">${imgHtml}</div></div></section>`;
       const textPage = `<section class="page">${cropMarks}<div class="sheet">${headerHtml}<div class="textbox">${textHtml}</div>${numberHtml}</div></section>`;
-      return imagePage + textPage;
+      return textPage + imagePage;
     }
     const isRight = displayIndex % 2 === 0;
     const cropMarks = `
